@@ -21,7 +21,7 @@ export async function submitPost(formData: FormData) {
 
   // 오늘 이미 글을 썼는지 확인
   const today = new Date().toISOString().slice(0, 10);
-  const { data: existingPost, error: selectError } = await supabase
+  const { data: existingPost, error: _selectError } = await supabase
     .from("posts")
     .select("id")
     .eq("user_id", user.id)

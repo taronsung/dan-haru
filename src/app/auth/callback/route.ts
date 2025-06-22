@@ -1,4 +1,5 @@
 // src/app/auth/callback/route.ts
+
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 
@@ -7,17 +8,17 @@ export const dynamic = 'force-dynamic'
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
-  // if "next" is in param, use it as the redirect URL
   const next = searchParams.get('next') ?? '/'
 
   if (code) {
     const supabase = createClient()
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error) {
-      return NextResponse.redirect(`<span class="math-inline">\{origin\}</span>{next}`)
+      const redirectUrl = new URL(next, origin) // next 변수를 여기서 사용합니다.
+      return NextResponse.redirect(redirectUrl)
     }
   }
 
-  // return the user to an error page with instructions
-  return NextResponse.redirect(`${origin}/login?error=Could not authenticate user`)
+  const errorUrl = new URL('/login?error=Could not authenticate user', origin)
+  return NextResponse.redirect(errorUrl)
 }

@@ -34,12 +34,13 @@ export default function AuthForm() {
         if (error) throw error;
         toast.info("로그인 되었습니다. 환영합니다!");
         router.push("/");
-        router.refresh(); // 페이지를 새로고침하여 서버 컴포넌트를 다시 렌더링
+        router.refresh();
       }
-    } catch (error: any) {
-      toast.error(`오류: ${error.message}`);
-    }    
-  };
+    } catch (error) { // (error: any) 대신 (error) 사용
+      if (error instanceof Error) { // error가 Error 타입인지 확인
+        toast.error(`오류: ${error.message}`);
+      }
+    }
 
   // 구글 로그인 핸들러 (지금은 비어있음)
   const handleGoogleLogin = async () => {

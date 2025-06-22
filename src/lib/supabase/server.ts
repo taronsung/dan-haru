@@ -1,3 +1,5 @@
+// src/lib/supabase/server.ts
+
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
@@ -13,7 +15,7 @@ export function createClient() {
         set(name: string, value: string, options: CookieOptions) {
           try {
             cookies().set({ name, value, ...options })
-          } catch (error) { // <-- 이 catch 블록이 문제였습니다.
+          } catch {
             // The `set` method was called from a Server Component.
             // This can be ignored if you have middleware refreshing
             // user sessions.
@@ -22,7 +24,7 @@ export function createClient() {
         remove(name: string, options: CookieOptions) {
           try {
             cookies().set({ name, value: '', ...options })
-          } catch (error) { // <-- 이 catch 블록이 문제였습니다.
+          } catch {
             // The `delete` method was called from a Server Component.
             // This can be ignored if you have middleware refreshing
             // user sessions.

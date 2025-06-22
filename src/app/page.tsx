@@ -4,7 +4,7 @@ export const dynamic = 'force-dynamic';
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { getTodaysQuestion } from "@/lib/questions";
-import MainPageUI from "./main-page-ui"; // 방금 만든 UI 컴포넌트 import
+import MainPageUI from "./main-page-ui";
 
 const getMaeumiCharacter = (streak: number) => {
   if (streak >= 15) return { level: 4, img: "/maeumi-lv4.png" };
@@ -31,20 +31,13 @@ export default async function Home() {
   const maeumi = getMaeumiCharacter(streak);
   const question = getTodaysQuestion();
 
-  const signOut = async () => {
-    "use server";
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    return redirect("/login");
-  };
+  // signOut 함수 정의 및 전달 로직 전체 삭제
 
-  // 서버에서 가져온 모든 데이터를 클라이언트 컴포넌트로 전달
   return (
     <MainPageUI
       maeumi={maeumi}
       streak={streak}
       question={question}
-      signOut={signOut}
     />
   );
 }

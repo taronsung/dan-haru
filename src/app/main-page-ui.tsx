@@ -1,25 +1,25 @@
 // src/app/main-page-ui.tsx
-"use client"; // 이 파일이 클라이언트 컴포넌트임을 명시
+"use client";
 
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import AppContainer from "@/components/common/app-container";
-import { submitPost } from "./actions";
+import { submitPost, signOut } from "./actions"; // signOut을 actions에서 직접 import
 
-// page.tsx에서 받아올 데이터의 타입을 정의합니다.
 type MainPageUIProps = {
   maeumi: { level: number; img: string };
   streak: number;
   question: string;
-  signOut: () => Promise<void>;
+  // signOut prop은 이제 필요 없습니다.
 };
 
-export default function MainPageUI({ maeumi, streak, question, signOut }: MainPageUIProps) {
+export default function MainPageUI({ maeumi, streak, question }: MainPageUIProps) {
   return (
     <AppContainer>
       <header className="flex justify-between items-center mb-6">
+        {/* ... 마음이 보여주는 부분 ... */}
         <div className="flex items-center gap-3">
           <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 260, damping: 20 }}>
             <Image src={maeumi.img} alt={`마음이 레벨 ${maeumi.level}`} width={60} height={60} />
@@ -29,11 +29,14 @@ export default function MainPageUI({ maeumi, streak, question, signOut }: MainPa
             <p className="text-sm text-gray-500">연속 {streak}일째 기록중!</p>
           </div>
         </div>
+
+        {/* form의 action에 actions.ts에서 가져온 signOut을 직접 연결 */}
         <form action={signOut}>
           <Button type="submit" variant="ghost" size="sm">로그아웃</Button>
         </form>
       </header>
-
+      
+      {/* ... main 부분은 그대로 ... */}
       <main className="bg-white p-6 rounded-2xl shadow-lg">
         <p className="text-sm text-gray-500 mb-2">오늘의 질문</p>
         <h1 className="text-2xl font-bold mb-4 text-gray-800">{question}</h1>

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Gaegu } from "next/font/google"; // Inter 대신 Gaegu import
-import BottomNav from "@/components/common/buttom-nav";
+import BottomNav from "@/components/common/bottom-nav";
 import { Toaster } from "@/components/ui/sonner" // sonner import
 import "./globals.css";
 

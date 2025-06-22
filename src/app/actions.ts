@@ -4,14 +4,24 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { toast } from "sonner";
+// toast는 클라이언트에서만 호출 가능하므로 서버 액션에서는 제거합니다.
 
+// 로그아웃 액션
+export async function signOut() {
+  const supabase = createClient();
+  await supabase.auth.signOut();
+  return redirect("/login");
+}
+
+// 글 제출 액션
 export async function submitPost(formData: FormData) {
   const supabase = createClient();
   const content = formData.get("content") as string;
 
   if (!content) {
-    return { error: "내용을 입력해주세요." };
+    // 클라이언트에서 처리하도록 에러 메시지만 반환할 수 있습니다.
+    // 여기서는 간단하게 리디렉션합니다.
+    return redirect("/");
   }
 
   const { data: { user } } = await supabase.auth.getUser();
@@ -19,14 +29,15 @@ export async function submitPost(formData: FormData) {
     return redirect("/login");
   }
 
-  // 오늘 이미 글을 썼는지 확인
-  const today = new Date().toISOString().slice(0, 10);
-  const { data: existingPost, error: _selectError } = await supabase
+  const today = new Date();
+  const todayStr = today.toISOString().slice(0, 10);
+  
+  const { data: existingPost } = await supabase
     .from("posts")
     .select("id")
     .eq("user_id", user.id)
-    .gte("created_at", `${today}T00:00:00.000Z`)
-    .lte("created_at", `${today}T23:59:59.999Z`)
+    .gte("created_at", `${todayStr}T00:00:00.000Z`)
+    .lte("created_at", `${todayStr}T23:59:59.999Z`)
     .single();
 
   if (existingPost) {
@@ -34,14 +45,10 @@ export async function submitPost(formData: FormData) {
      return redirect("/");
   }
 
-  // 새 포스트 삽입
-  const { error: insertError } = await supabase
-    .from("posts")
-    .insert({ user_id: user.id, content });
-
+  const { error: insertError } = await supabase.from("posts").insert({ user_id: user.id, content });
   if (insertError) {
-     console.error("Insert Error:", insertError);
-     return { error: "글을 저장하는 데 실패했습니다." };
+    console.error("Insert Error:", insertError);
+    return redirect("/?error=post_insert_failed");
   }
 
   const { data: profile } = await supabase.from("profiles").select("streak, last_posted_at").eq("id", user.id).single();
@@ -49,24 +56,22 @@ export async function submitPost(formData: FormData) {
 
   const yesterday = new Date(today);
   yesterday.setDate(yesterday.getDate() - 1);
-
+  
   const lastPostedDate = profile.last_posted_at ? new Date(profile.last_posted_at) : null;
   let newStreak = profile.streak;
 
   if (!lastPostedDate || lastPostedDate.toDateString() === yesterday.toDateString()) {
       newStreak++;
   } else if (lastPostedDate.toDateString() !== today.toDateString()) {
-      newStreak = 1; // 어제가 아니면 스트릭 리셋
+      newStreak = 1;
   }
-
-  const { error: updateError } = await supabase
+  
+  await supabase
       .from("profiles")
       .update({ streak: newStreak, last_posted_at: today.toISOString() })
       .eq("id", user.id);
 
-  if (updateError) throw new Error("스트릭 정보 업데이트에 실패했습니다.");
-
   revalidatePath("/");
   revalidatePath("/my-posts");
-  toast.success("오늘의 기록이 저장됐어요!");
+  return redirect("/");
 }

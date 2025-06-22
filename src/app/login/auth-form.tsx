@@ -7,21 +7,19 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { toast } from "sonner"; // toast import
-import { Chrome } from "lucide-react"; // 아이콘 import
+import { toast } from "sonner";
+import { Chrome } from "lucide-react";
 
 export default function AuthForm() {
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [message, setMessage] = useState("");
   const router = useRouter();
   const supabase = createClient();
 
   const handleAuthAction = async (e: React.FormEvent) => {
     e.preventDefault();
-    setMessage("");
-
+    
     try {
       if (isSignUp) {
         const { error } = await supabase.auth.signUp({ email, password });
@@ -32,17 +30,14 @@ export default function AuthForm() {
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        toast.info("로그인 되었습니다. 환영합니다!");
         router.push("/");
         router.refresh();
       }
-    } catch (error) { // (error: any) 대신 (error) 사용
-      if (error instanceof Error) { // error가 Error 타입인지 확인
-        toast.error(`오류: ${error.message}`);
-      }
+    } catch (error) {
+      toast.error(`오류: ${(error as Error).message}`);
     }
+  };
 
-  // 구글 로그인 핸들러 (지금은 비어있음)
   const handleGoogleLogin = async () => {
     await supabase.auth.signInWithOAuth({
       provider: "google",
@@ -83,13 +78,11 @@ export default function AuthForm() {
             <span className="bg-background px-2 text-muted-foreground">OR CONTINUE WITH</span>
           </div>
         </div>
-
+        
         <Button variant="outline" className="w-full" onClick={handleGoogleLogin}>
           <Chrome className="mr-2 h-4 w-4" />
           Google
         </Button>
-
-        {message && <p className="text-sm text-center font-medium text-red-500">{message}</p>}
 
         <div className="mt-4 text-center text-sm">
           {isSignUp ? "이미 계정이 있으신가요?" : "계정이 없으신가요?"}

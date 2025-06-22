@@ -11,18 +11,20 @@ export function createClient() {
           return cookies().get(name)?.value
         },
         set(name: string, value: string, options: CookieOptions) {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           try {
             cookies().set({ name, value, ...options })
-          } catch (_error) {
+          } catch (error) {
             // The `set` method was called from a Server Component.
             // This can be ignored if you have middleware refreshing
             // user sessions.
           }
         },
         remove(name: string, options: CookieOptions) {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           try {
             cookies().set({ name, value: '', ...options })
-          } catch (_error) {
+          } catch (error) {
             // The `delete` method was called from a Server Component.
             // This can be ignored if you have middleware refreshing
             // user sessions.

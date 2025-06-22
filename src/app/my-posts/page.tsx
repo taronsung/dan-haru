@@ -13,7 +13,7 @@ export default async function MyPostsPage() {
     return redirect("/login");
   }
 
-  const { data: posts, error: _error } = await supabase
+  const { data: posts } = await supabase
     .from("posts")
     .select("id, content, created_at")
     .eq("user_id", user.id)

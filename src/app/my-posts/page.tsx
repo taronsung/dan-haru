@@ -13,11 +13,20 @@ export default async function MyPostsPage() {
     return redirect("/login");
   }
 
-  const { data: posts } = await supabase
+  const { data: posts, error } = await supabase
     .from("posts")
     .select("id, content, created_at")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
+
+  if (error) {
+    return (
+      <div className="p-4 max-w-2xl mx-auto">
+        <h1 className="text-2xl font-bold mb-6">나의 기록들</h1>
+        <p className="text-red-500">기록을 불러오는 중 오류가 발생했습니다. 다시 시도해 주세요.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 max-w-2xl mx-auto">

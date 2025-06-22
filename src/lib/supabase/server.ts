@@ -11,20 +11,18 @@ export function createClient() {
           return cookies().get(name)?.value
         },
         set(name: string, value: string, options: CookieOptions) {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           try {
             cookies().set({ name, value, ...options })
-          } catch (error) {
+          } catch (error) { // <-- 이 catch 블록이 문제였습니다.
             // The `set` method was called from a Server Component.
             // This can be ignored if you have middleware refreshing
             // user sessions.
           }
         },
         remove(name: string, options: CookieOptions) {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           try {
             cookies().set({ name, value: '', ...options })
-          } catch (error) {
+          } catch (error) { // <-- 이 catch 블록이 문제였습니다.
             // The `delete` method was called from a Server Component.
             // This can be ignored if you have middleware refreshing
             // user sessions.

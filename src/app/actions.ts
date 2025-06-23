@@ -21,6 +21,7 @@ export async function signOut() {
 export async function submitPost(formData: FormData) {
   const supabase = createClient();
   const content = formData.get("content") as string;
+  const question = formData.get("question") as string;
 
   if (!content) {
     // Redirect with error message
@@ -51,7 +52,7 @@ export async function submitPost(formData: FormData) {
     return redirect("/?error=already_posted_today");
   }
 
-  const { error: insertError } = await supabase.from("posts").insert({ user_id: user.id, content });
+  const { error: insertError } = await supabase.from("posts").insert({ user_id: user.id, content, question });
   if (insertError) {
     return redirect("/?error=post_insert_failed");
   }
@@ -75,11 +76,16 @@ export async function submitPost(formData: FormData) {
   
   const { error: updateError } = await supabase
       .from("profiles")
-      .update({ streak: newStreak, last_posted_at: today.toISOString() })
+      .update({ streak: newStreak, last_posted_at: today.toISOString(), next_question: null })
       .eq("id", user.id);
   if (updateError) {
     return redirect("/?error=profile_update_failed");
   }
+
+  if (newStreak === 7) {
+    // 7일 뱃지 부여 시도 (UNIQUE 제약조건으로 중복 방지)
+    await supabase.from("achievements").insert({ user_id: user.id, badge_type: '7_day_streak' }).select();
+}
 
   revalidatePath("/");
   revalidatePath("/my-posts");

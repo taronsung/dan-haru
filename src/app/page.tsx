@@ -23,13 +23,14 @@ export default async function Home() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("streak")
+    .select("streak, next_question")
     .eq("id", user.id)
     .single();
 
   const streak = profile?.streak ?? 0;
   const maeumi = getMaeumiCharacter(streak);
-  const question = getTodaysQuestion();
+  // 개인화 질문이 있으면 그것을 사용하고, 없으면 오늘의 기본 질문을 사용합니다.
+  const question = profile?.next_question || getTodaysQuestion();
 
   // signOut 함수 정의 및 전달 로직 전체 삭제
 
